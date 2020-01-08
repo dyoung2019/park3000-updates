@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry'
-
 # encode points to string
 class IntPointsDecoder
   DICTIONARY_VALUES = \
@@ -67,7 +65,7 @@ class IntPointsDecoder
     value = 0
 
     loop do
-      return use_non_32bit_fallback(value, chars) if bit_index >= 30
+      # return use_non_32bit_fallback(value, chars) if bit_index >= 30
 
       success, decoded_char = decode_encoded_char(chars)
       return [false, nil, nil] unless success
@@ -79,19 +77,20 @@ class IntPointsDecoder
     end
   end
 
-  def use_non_32bit_fallback(value, chars)
-    factor = 1 << 30
+  # JUST FOR JS ONLY
+  # def use_non_32bit_fallback(value, chars)
+  #   factor = 1 << 30
 
-    loop do
-      success, decoded_char = decode_encoded_char(chars)
-      return [false, nil, nil] unless success
+  #   loop do
+  #     success, decoded_char = decode_encoded_char(chars)
+  #     return [false, nil, nil] unless success
 
-      value = append_with_non_32bit_op(value, decoded_char, factor)
-      factor *= 32
+  #     value = append_with_non_32bit_op(value, decoded_char, factor)
+  #     factor *= 32
 
-      return [true, value, chars] if final_char?(decoded_char)
-    end
-  end
+  #     return [true, value, chars] if final_char?(decoded_char)
+  #   end
+  # end
 
   def to_lower_bits(decoded_char)
     decoded_char & 31

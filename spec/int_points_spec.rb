@@ -3,8 +3,8 @@
 require_relative '../int_points'
 
 describe IntPoints do
-  let(:encoder) { described_class.new }
-  let(:encoding_string) { 'vx1vilihnM6hR7mEl2Q' }
+  let(:enc) { described_class.new }
+  let(:enc_string) { 'vx1vilihnM6hR7mEl2Q' }
   let(:sample_points) do
     [
       [3_589_431, -11_072_522],
@@ -20,21 +20,21 @@ describe IntPoints do
 
   context 'with encoding' do
     it 'return an empty string' do
-      expect(encoder.encode([])).to eq ''
+      expect(enc.encode([])).to eq ''
     end
 
     it 'returns a encoded string' do
-      expect(encoder.encode(sample_points)).to eq encoding_string
+      expect(enc.encode(sample_points)).to eq enc_string
     end
   end
 
   context 'with decoding' do
     it 'returns passing empty string' do
-      expect(encoder.decode('')).to eq({ points: [], success: true })
+      expect(enc.decode('')).to eq(points: [], success: true)
     end
 
-    it 'returns actual values' do 
-      expect(encoder.decode(encoding_string)).to eq({ points: sample_points, success: true })
+    it 'returns actual values' do
+      expect(enc.decode(enc_string)).to eq(points: sample_points, success: true)
     end
   end
 end

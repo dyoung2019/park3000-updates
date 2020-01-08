@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-require 'pry'
 
+require 'pry'
 
 # encode points to string
 class IntPoints
@@ -27,10 +27,10 @@ class IntPoints
     index = 0
     xsum = 0
     ysum = 0
-  
+
     string_length = encoded_string.length
 
-    return { points: [], success: true } if (string_length <= 0)
+    return { points: [], success: true } unless string_length.positive?
 
     # While we have more data
     loop do
@@ -40,24 +40,21 @@ class IntPoints
       k = 0
       factor = 1 << 30
 
-      loop do 
-
-        if (index >= string_length)
-          binding.pry
-          return { points: [], success: false, dropped: 2  } 
+      loop do
+        if index >= string_length
+          return { points: [], success: false, dropped: 2 }
         end
-
 
         chunk = encoded_string[index]
         index += 1
         b = DICTIONARY_VALUES[chunk]
 
-        return { points:[], success: false, dropped: 3 } if (b == nil)
+        return { points: [], success: false, dropped: 3 } if b.nil?
 
         lower_bits = b & 31
-      
+
         can_use_32_bitwise_ops = k < 30
-        if can_use_32_bitwise_ops 
+        if can_use_32_bitwise_ops
           n |= lower_bits << k
         else
           n += lower_bits * factor
@@ -67,11 +64,10 @@ class IntPoints
         k += 5
 
         break if b < 32
-
       end
 
-      # The resulting number encodes an x, y pair in the following way:  
-  
+      # The resulting number encodes an x, y pair in the following way:
+
       # https://math.stackexchange.com/questions/1417579/largest-triangular-number-less-than-a-given-natural-number
 
       triangle_lookup = (1 + Math.sqrt(8 * n + 1)) / 2
@@ -80,13 +76,13 @@ class IntPoints
       elements_in_triangles = (sum_of_lat_and_long * largest_complete_triangle) / 2
       x_delta = n - elements_in_triangles
 
-      # get the X and Y from what's left over  
+      # get the X and Y from what's left over
       nx = x_delta
       ny = sum_of_lat_and_long - x_delta
 
-      # undo the sign encoding  
-      nx = (nx >> 1) ^ -(nx & 1)  
-      ny = (ny >> 1) ^ -(ny & 1)  
+      # undo the sign encoding
+      nx = (nx >> 1) ^ -(nx & 1)
+      ny = (ny >> 1) ^ -(ny & 1)
 
       xsum += nx
       ysum += ny

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative '../int_points'
+require_relative '../int_points_decoder'
 
-describe IntPoints do
+describe IntPointsDecoder do
   let(:enc) { described_class.new }
   let(:enc_string) { 'vx1vilihnM6hR7mEl2Q' }
   let(:sample_points) do
@@ -14,27 +14,17 @@ describe IntPoints do
     ]
   end
 
-  it 'returns allowed values of length of 64' do
-    expect(described_class::ALLOWED_VALUES.length).to eq 64
-  end
-
-  context 'with encoding' do
-    it 'return an empty string' do
-      expect(enc.encode([])).to eq ''
-    end
-
-    it 'returns a encoded string' do
-      expect(enc.encode(sample_points)).to eq enc_string
-    end
-  end
-
   context 'with decoding' do
-    it 'returns passing empty string' do
+    it 'returns passing empty array on empty string' do
       expect(enc.decode('')).to eq(points: [], success: true)
     end
 
     it 'returns actual values' do
       expect(enc.decode(enc_string)).to eq(points: sample_points, success: true)
+    end
+
+    it 'returns empty array on garbage' do
+      expect(enc.decode('$%^%^%^')).to eq(points: [], success: false)
     end
   end
 end

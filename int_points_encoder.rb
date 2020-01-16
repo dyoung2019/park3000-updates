@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# encode points to string
+# encode array of points to string
 class IntPointsEncoder
   ALLOWED_VALUES = \
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef'\

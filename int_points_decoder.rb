@@ -1,23 +1,10 @@
 # frozen_string_literal: true
 
-# encode points to string
+# decodes encoded string to array of int points
 class IntPointsDecoder
   DICTIONARY_VALUES = \
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef'\
     'ghijklmnopqrstuvwxyz0123456789_-'.chars.map.with_index.to_h
-
-  def encode(points)
-    encoded_values = []
-
-    last_point = [0, 0]
-    points.each do |point|
-      index = extract_index_from_points(point, last_point)
-      append_index_to_encoded_values(encoded_values, index)
-      last_point = point
-    end
-
-    encoded_values.join('')
-  end
 
   def decode(encoded_string)
     encoded_chars = encoded_string.chars
@@ -120,26 +107,30 @@ class IntPointsDecoder
     value | (lower_bits << bit_index)
   end
 
-  def to_coordinate(pair_string)
-    # The resulting number encodes an x, y pair in the following way:
-    # https://math.stackexchange.com/questions/1417579/largest-triangular-number-less-than-a-given-natural-number
+  def to_coordinate(encoded_pair)
+    triangular_num = get_largest_triangular_number(encoded_pair)
+    nth_triangle = triangular_num - 1
 
-    triangle_lookup = calculate_triangular_number(pair_string)
+    no_of_elements = get_elements_in_triangle(nth_triangle)
 
-    largest_complete_triangle = triangle_lookup.floor
-    sum_of_lat_and_long = largest_complete_triangle - 1
+    latitude = encoded_pair - no_of_elements
+    longitude = nth_triangle - latitude
 
-    elements_in_triangles = sum_of_lat_and_long * largest_complete_triangle
-    elements_in_triangles /= 2
-
-    nx = pair_string - elements_in_triangles
-    ny = sum_of_lat_and_long - nx
-
-    [nx, ny].map { |n| undo_sign_encoding n }
+    [latitude, longitude].map { |value| undo_sign_encoding(value) }
   end
 
-  def calculate_triangular_number(encoded_pair)
-    (1 + Math.sqrt(8 * encoded_pair + 1)) / 2
+  def get_elements_in_triangle(nth_triangle)
+    # fn triangular number =>  n ((n + 1)) / 2
+    n = nth_triangle
+    no_of_elements = n * (n + 1)
+    no_of_elements / 2
+  end
+
+  def get_largest_triangular_number(encoded_pair)
+    # The resulting number encodes an x, y pair in the following way:
+    # https://math.stackexchange.com/questions/1417579/largest-triangular-number-less-than-a-given-natural-number
+    lookup = (1 + Math.sqrt(8 * encoded_pair + 1)) / 2
+    lookup.floor
   end
 
   def undo_sign_encoding(num)
